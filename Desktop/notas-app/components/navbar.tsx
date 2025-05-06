@@ -26,7 +26,7 @@ export function Navbar() {
               <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right">
+          <SheetContent side="right" className="bg-card">
             <div className="flex flex-col gap-4 mt-8">
               {isLoggedIn ? (
                 <Button variant="outline" onClick={() => setIsLoggedIn(false)}>
@@ -34,8 +34,12 @@ export function Navbar() {
                 </Button>
               ) : (
                 <>
-                  <Button variant="default">Iniciar sesión</Button>
-                  <Button variant="outline">Registrarse</Button>
+                  <Link href="/login" className="w-full">
+                    <Button variant="default" className="w-full">Iniciar sesión</Button>
+                  </Link>
+                  <Link href="/signup" className="w-full">
+                    <Button variant="outline" className="w-full">Registrarse</Button>
+                  </Link>
                 </>
               )}
               <div className="flex justify-end pt-4">
