@@ -2,26 +2,46 @@
 
 import Link from "next/link"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { signIn } from "@/lib/auth"
+import { toast } from "sonner"
+
+interface ErrorObject {
+  message?: string;
+  [key: string]: any;
+}
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     setIsLoading(true)
     
-    // Simulación de inicio de sesión
-    setTimeout(() => {
+    try {
+      const result = await signIn(email, password)
+      
+      if (!result.success) {
+        const errorObj = result.error as ErrorObject;
+        throw new Error(errorObj?.message || "Error al iniciar sesión")
+      }
+      
+      toast.success("Sesión iniciada exitosamente")
+      router.push("/dashboard")
+    } catch (err: any) {
+      setError(err.message || "Error al iniciar sesión")
+    } finally {
       setIsLoading(false)
-      console.log("Inicio de sesión:", { email, password })
-      // Aquí iría la lógica real de autenticación
-    }, 1500)
+    }
   }
 
   return (
@@ -35,6 +55,12 @@ export default function LoginPage() {
               Bienvenido de nuevo a RushNote
             </p>
           </div>
+
+          {error && (
+            <div className="bg-destructive/10 text-destructive p-3 rounded-md mb-6">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">

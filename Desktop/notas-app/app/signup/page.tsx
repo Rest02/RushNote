@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,8 +15,16 @@ import {
   SelectValue 
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { signUp } from "@/lib/auth"
+import { toast } from "sonner"
+
+interface ErrorObject {
+  message?: string;
+  [key: string]: any;
+}
 
 export default function SignupPage() {
+  const router = useRouter()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -41,12 +50,21 @@ export default function SignupPage() {
 
     setIsLoading(true)
     
-    // Simulación de registro
-    setTimeout(() => {
+    try {
+      const result = await signUp(email, password, name)
+      
+      if (!result.success) {
+        const errorObj = result.error as ErrorObject;
+        throw new Error(errorObj?.message || "Error al crear la cuenta")
+      }
+      
+      toast.success("Cuenta creada exitosamente")
+      router.push("/login")
+    } catch (err: any) {
+      setError(err.message || "Error al crear la cuenta")
+    } finally {
       setIsLoading(false)
-      console.log("Registro:", { name, email, password, userType })
-      // Aquí iría la lógica real de registro
-    }, 1500)
+    }
   }
 
   return (
